@@ -1,7 +1,7 @@
 ﻿import { loadContacts, addNewContact, handlePreferredNumber } from './contacts.js';
 import { loadTemplatePreview, updateTemplatePreview, defaultBody } from './template.js';
 import { sendCallbackEmail } from './email.js';
-import { insertAtCursor } from './utils.js';
+import { insertAtCursor, isContactPage} from './utils.js';
 
 // DOM elements
 const contactSelect = document.getElementById("contactSelect");
@@ -19,24 +19,38 @@ let isEditing = false;
 let currentContactInfo = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
-    loadContacts(contactSelect);
-    initialiseDefaultTemplate();
-    await loadTemplatePreview(templatePreview);
-    loadSavedTemplate();
-    setupListeners(); 
-    loadContactData();
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs.length === 0) return;
+
+        const activeTab = tabs[0];
+        const url = activeTab.url || "";
+
+        const mainUI = document.getElementById("mainUI");
+        const noContactMessage = document.getElementById("noContactMessage");
+
+        console.log
+
+        if (isContactPage(url)) {
+            console.log("Showing UI - contact page detected.");
+
+            mainUI.style.display = "block";
+            noContactMessage.style.display = "none";
+
+            loadContacts(contactSelect);
+            initialiseDefaultTemplate();
+            loadTemplatePreview(templatePreview);
+            loadSavedTemplate();
+            setupListeners();
+            loadContactData();
+        } else {
+            console.log("Hiding UI - not a contact page.");
+            // Hide main UI and show no-contact message
+            mainUI.style.display = "none";
+            noContactMessage.style.display = "block";
+        }
+    });
 });
 
-// Listen for contactInfo sent from content script
-chrome.runtime.onMessage.addListener((request) => {
-    if (request.action === "contactInfoLoaded") {
-        currentContactInfo = request;
-        handlePreferredNumber(currentContactInfo, preferredNumberSelect, preferredNumberLabel, () => {
-            updateTemplatePreview(templatePreview, contactSelect, currentContactInfo);
-        });
-        updateTemplatePreview(templatePreview, contactSelect, currentContactInfo);
-    }
-});
 
 // Ensure default template is initialized in storage
 function initialiseDefaultTemplate() {
@@ -54,13 +68,27 @@ function initialiseDefaultTemplate() {
     });
 }
 
+// Load saved template into textarea
 function loadSavedTemplate() {
     chrome.storage.local.get('emailBodyTemplate', (result) => {
         emailBodyTextarea.value = result.emailBodyTemplate || '';
     });
 }
 
+// Setup event listeners
 function setupListeners() {
+
+    // Listen for contactInfo sent from content script
+    chrome.runtime.onMessage.addListener((request) => {
+        if (request.action === "contactInfoLoaded") {
+            currentContactInfo = request;
+            handlePreferredNumber(currentContactInfo, preferredNumberSelect, preferredNumberLabel, () => {
+                updateTemplatePreview(templatePreview, contactSelect, currentContactInfo);
+            });
+            updateTemplatePreview(templatePreview, contactSelect, currentContactInfo);
+        }
+    });
+
     // Save changes while editing
     emailBodyTextarea.addEventListener('input', () => {
         if (isEditing) {

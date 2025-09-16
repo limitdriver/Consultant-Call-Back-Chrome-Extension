@@ -16,3 +16,7 @@ export function insertAtCursor(textarea, text) {
     const cursorPos = start + text.length;
     textarea.selectionStart = textarea.selectionEnd = cursorPos;
 }
+
+export function isContactPage(url) {
+    return url.startsWith("https://austwide.lightning.force.com/lightning/r/Contact/");
+}
