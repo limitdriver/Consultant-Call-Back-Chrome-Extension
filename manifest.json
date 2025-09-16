@@ -10,6 +10,11 @@
   "permissions": [ "storage", "activeTab", "scripting" ],
   "web_accessible_resources": [
     {
+      "resources": [
+        "Images/icon128.png",
+        "Scripts/content.js",
+        "Popup/popup.html"
+      ],
       "matches": [ "<all_urls>" ]
     }
   ],
