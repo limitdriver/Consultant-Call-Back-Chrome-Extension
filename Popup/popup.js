@@ -19,6 +19,8 @@ let isEditing = false;
 let currentContactInfo = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
+    updateVersionInfo();
+
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs.length === 0) return;
 
@@ -27,8 +29,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const mainUI = document.getElementById("mainUI");
         const noContactMessage = document.getElementById("noContactMessage");
-
-        console.log
 
         if (isContactPage(url)) {
             console.log("Showing UI - contact page detected.");
@@ -50,6 +50,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 });
+
+function updateVersionInfo() {
+    chrome.runtime.getManifest && (() => {
+        const version = chrome.runtime.getManifest().version;
+        document.getElementById('versionText').textContent = `v${version}`;
+    })();
+}
 
 
 // Ensure default template is initialized in storage
