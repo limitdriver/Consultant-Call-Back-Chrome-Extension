@@ -1,0 +1,112 @@
+body {
+    font-family: sans-serif;
+    padding: 10px;
+    width: 600px;
+    box-sizing: border-box;
+    margin: 0 auto;
+}
+
+.contactContainer {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#contactSelect {
+    flex: 1;
+    padding: 5px;
+    font-size: 14px;
+}
+
+button.add-contact {
+    margin-left: 5px;
+    padding: 5px 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.template-editor {
+    margin-top: 10px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Editor wrapper is flex container */
+#editorWrapper {
+    display: none;
+    width: 100%;
+    align-items: flex-start;
+    margin-top: 5px;
+}
+
+/* Textarea styles */
+#emailBodyTextarea {
+    width: 80%;
+    box-sizing: border-box;
+    white-space: pre-wrap;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px;
+    font-family: sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    height: calc(1.5em * 12 + 20px); /* ~12 lines */
+    margin-bottom: 10px;
+    overflow-y: auto;
+    resize: none;
+    display: block;
+}
+
+/* Preview div matches textarea style and size */
+#templatePreview {
+    width: 100%;
+    box-sizing: border-box;
+    white-space: pre-wrap;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px;
+    font-family: sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    height: calc(1.5em * 12 + 20px);
+    margin-bottom: 10px;
+    overflow-y: auto;
+}
+
+/* Insert buttons column */
+#insertButtons {
+    flex-basis: 20%;
+    display: none; /* hidden by default */
+    flex-direction: column;
+    gap: 8px;
+    margin-left: 10px;
+}
+
+    #insertButtons button {
+        padding: 6px 8px;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+/* Show insert buttons only in edit mode */
+.editing #insertButtons {
+    display: flex;
+}
+
+#editTemplateButton, #sendEmailButton {
+    margin-top: 10px;
+    padding: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Hide send button while editing */
+.editing #sendEmailButton {
+    display: none;
+}

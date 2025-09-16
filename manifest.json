@@ -1,0 +1,23 @@
+{
+  "name": "Consultant Callback",
+  "description": "A simple extension to send an email to request a callback from a Salesforce contact",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "Popup/popup.html",
+    "default_icon": "Images/icon128.png"
+  },
+  "permissions": [ "storage", "activeTab", "scripting" ],
+  "web_accessible_resources": [
+    {
+      "matches": [ "<all_urls>" ]
+    }
+  ],
+  "host_permissions": [ "https://*.lightning.force.com/*" ],
+  "content_scripts": [
+    {
+      "matches": [ "https://*.lightning.force.com/*" ],
+      "js": [ "Scripts/content.js" ]
+    }
+  ]
+}

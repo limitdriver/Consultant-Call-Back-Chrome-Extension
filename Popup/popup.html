@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contact Selector</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="contactContainer">
+        <select id="contactSelect"></select>
+        <button class="add-contact" id="addContactButton">+</button>
+    </div>
+
+    <div class="template-editor">
+        <label>Email Body:</label>
+
+        <!-- Preview mode (plain text) -->
+        <div id="templatePreview" style="white-space: pre-wrap;"></div>
+
+        <div id="editorWrapper">
+            <textarea id="emailBodyTextarea" rows="12"></textarea>
+            <div id="insertButtons">
+                <button data-insert="{name}">Name</button>
+                <button data-insert="{email}">Email</button>
+                <button data-insert="{account}">Account</button>
+                <button data-insert="{number}">Number</button>
+                <button data-insert="{helpDesk}">Help Desk</button>
+            </div>
+        </div>
+
+        <button id="editTemplateButton">Edit</button>
+    </div>
+
+    <label for="preferredNumberSelect">Preferred Number:</label>
+    <select id="preferredNumberSelect" style="display:none;"></select>
+
+    <button id="sendEmailButton">Send Callback Email</button>
+
+    <script src="popup.js"></script>
+</body>
+</html>
