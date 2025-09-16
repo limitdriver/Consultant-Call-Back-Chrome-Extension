@@ -121,47 +121,64 @@ function setupListeners() {
 
 // Request contact info from content script
 function loadContactData() {
-    
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs.length == 0) return;
+        if (!tabs.length) return;
 
         const activeTabId = tabs[0].id;
 
-        chrome.tabs.sendMessage(activeTabId, { action: "getContactInfo" }, (contact) => {
-            if (chrome.runtime.lastError || !contact) {
-                console.warn("Could not get contact info from page.");
+        // ✅ Re-inject the content script to get fresh DOM data
+        chrome.scripting.executeScript({
+            target: { tabId: activeTabId },
+            files: ["Scripts/content.js"]
+        }, () => {
+            if (chrome.runtime.lastError) {
+                console.warn("Error injecting content script:", chrome.runtime.lastError.message);
                 return;
             }
 
-            currentContactInfo = contact;
+            // 📨 Request fresh contact info
+            chrome.tabs.sendMessage(activeTabId, { action: "getContactInfo" }, (contact) => {
+                if (chrome.runtime.lastError || !contact) {
+                    console.warn("Could not get contact info from page.");
+                    return;
+                }
 
-            const numbers = contact.contactNumbers || [];
-            if (numbers.length === 1) {
-                currentContactInfo.number = numbers[0];
+                // ✅ Clean and reset state
+                currentContactInfo = contact;
+                preferredNumberSelect.innerHTML = "";
                 preferredNumberSelect.style.display = "none";
                 preferredNumberLabel.style.display = "none";
-            } else if (numbers.length > 1) {
-                preferredNumberSelect.innerHTML = "";
-                numbers.forEach(number => {
-                    const option = document.createElement("option");
-                    option.value = number;
-                    option.textContent = number;
-                    preferredNumberSelect.appendChild(option);
-                });
-                preferredNumberSelect.style.display = "inline-block";
-                preferredNumberLabel.style.display = "inline-block";
-                currentContactInfo.number = numbers[0];
-            }
 
-            preferredNumberSelect.addEventListener("change", () => {
-                currentContactInfo.number = preferredNumberSelect.value;
+                const numbers = contact.contactNumbers || [];
+
+                if (numbers.length === 1) {
+                    currentContactInfo.number = numbers[0];
+                } else if (numbers.length > 1) {
+                    numbers.forEach(number => {
+                        const option = document.createElement("option");
+                        option.value = number;
+                        option.textContent = number;
+                        preferredNumberSelect.appendChild(option);
+                    });
+
+                    preferredNumberSelect.value = numbers[0];
+                    currentContactInfo.number = numbers[0];
+
+                    preferredNumberSelect.style.display = "inline-block";
+                    preferredNumberLabel.style.display = "inline-block";
+                }
+
+                preferredNumberSelect.onchange = () => {
+                    currentContactInfo.number = preferredNumberSelect.value;
+                    updateTemplatePreview(templatePreview, contactSelect, currentContactInfo);
+                };
+
                 updateTemplatePreview(templatePreview, contactSelect, currentContactInfo);
             });
-
-            updateTemplatePreview(templatePreview, contactSelect, currentContactInfo);
         });
     });
 }
+
 
 
 // Toggle between edit and preview mode
