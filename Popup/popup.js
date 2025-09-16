@@ -19,10 +19,27 @@ let isEditing = false;
 let currentContactInfo = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
-    // Load contacts and template preview
     loadContacts(contactSelect);
+    initialiseDefaultTemplate();
+    await loadTemplatePreview(templatePreview);
+    loadSavedTemplate();
+    setupListeners(); 
+    loadContactData();
+});
 
-    // Ensure default template is initialized in storage
+// Listen for contactInfo sent from content script
+chrome.runtime.onMessage.addListener((request) => {
+    if (request.action === "contactInfoLoaded") {
+        currentContactInfo = request;
+        handlePreferredNumber(currentContactInfo, preferredNumberSelect, preferredNumberLabel, () => {
+            updateTemplatePreview(templatePreview, contactSelect, currentContactInfo);
+        });
+        updateTemplatePreview(templatePreview, contactSelect, currentContactInfo);
+    }
+});
+
+// Ensure default template is initialized in storage
+function initialiseDefaultTemplate() {
     chrome.storage.local.get(['emailBodyTemplate'], (result) => {
         if (!result.emailBodyTemplate) {
             // Save defaultBody to storage
@@ -35,15 +52,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             updateTemplatePreview(templatePreview, contactSelect, currentContactInfo);
         }
     });
+}
 
-
-    await loadTemplatePreview(templatePreview);
-
-    // Load saved email body
+function loadSavedTemplate() {
     chrome.storage.local.get('emailBodyTemplate', (result) => {
         emailBodyTextarea.value = result.emailBodyTemplate || '';
     });
+}
 
+function setupListeners() {
     // Save changes while editing
     emailBodyTextarea.addEventListener('input', () => {
         if (isEditing) {
@@ -65,10 +82,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             emailBodyTextarea.focus();
         }
     });
+}
 
-    // Request contact info from content script
+// Request contact info from content script
+function loadContactData() {
+    
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs.length == 0) return;
+
         const activeTabId = tabs[0].id;
+
         chrome.tabs.sendMessage(activeTabId, { action: "getContactInfo" }, (contact) => {
             if (chrome.runtime.lastError || !contact) {
                 console.warn("Could not get contact info from page.");
@@ -103,18 +126,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             updateTemplatePreview(templatePreview, contactSelect, currentContactInfo);
         });
     });
-});
+}
 
-// Listen for contactInfo sent from content script
-chrome.runtime.onMessage.addListener((request) => {
-    if (request.action === "contactInfoLoaded") {
-        currentContactInfo = request;
-        handlePreferredNumber(currentContactInfo, preferredNumberSelect, preferredNumberLabel, () => {
-            updateTemplatePreview(templatePreview, contactSelect, currentContactInfo);
-        });
-        updateTemplatePreview(templatePreview, contactSelect, currentContactInfo);
-    }
-});
 
 // Toggle between edit and preview mode
 function toggleEditMode() {
