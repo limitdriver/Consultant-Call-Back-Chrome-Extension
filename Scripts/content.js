@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         };
 
         const name = getVisibleText("lightning-formatted-name");
-        const account = getVisibleText("span.lwc-47ngqe6rvah", { parent: 'a[href*="/lightning/r/Account/"]' });
+        const account = getVisibleText("a[href*='/lightning/r/Account/'] span[lwc-47ngqe6rvah]");
         const email = getVisibleText("a[lwc-6dhblsr4nda]");
         const helpDesk = getVisibleText('lightning-formatted-text[data-output-element-id="output-field"]');
 
