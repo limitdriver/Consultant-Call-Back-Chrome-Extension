@@ -1,7 +1,7 @@
 {
   "name": "Consultant Callback",
   "description": "A simple extension to send an email to request a callback from a Salesforce contact",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "manifest_version": 3,
   "action": {
     "default_popup": "Popup/popup.html",
